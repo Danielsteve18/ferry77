@@ -22,36 +22,54 @@ export default function ActivosUsuarios() {
   const [aceptados, setAceptados] = useState([]);
   const [pendientes, setPendientes] = useState([]);
   const [rechazados, setRechazados] = useState([]);
+  const [alerta, setAlerta] = useState("");
+
 
   useEffect(() => {
     fetchUsuarios();
   }, []);
 
   const fetchUsuarios = async () => {
-    try {
-      const snap = await getDocs(collection(db, "users"));
-      const lista = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  try {
+    const snap = await getDocs(collection(db, "users"));
+    const lista = snap.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        status: data.status?.toLowerCase().trim() || "pendiente", // valor por defecto
+        rol: data.rol?.toLowerCase().trim() || "usuario",
+      };
+    });
 
-      const aceptados = lista.filter(
-        (u) =>
-          u.status?.toLowerCase().trim() === "aceptado" &&
-          u.rol === "usuario"
-      );
-      const pendientes = lista.filter(
-        (u) => u.status?.toLowerCase().trim() === "pendiente"
-      );
-      const rechazados = lista.filter(
-        (u) => u.status?.toLowerCase().trim() === "rechazado"
-      );
 
-      setUsuarios(lista);
-      setAceptados(aceptados);
-      setPendientes(pendientes);
-      setRechazados(rechazados);
-    } catch (error) {
-      console.error("Error al obtener usuarios:", error);
-    }
-  };
+    const aceptados = lista.filter(
+      (u) =>
+        u.status?.toLowerCase().trim() === "aceptado" &&
+        u.rol?.toLowerCase().trim() === "usuario"
+    );
+
+    const pendientes = lista.filter(
+      (u) =>
+        u.status?.toLowerCase().trim() === "pendiente" &&
+        u.rol?.toLowerCase().trim() === "usuario"
+    );
+
+    const rechazados = lista.filter(
+      (u) =>
+        u.status?.toLowerCase().trim() === "rechazado" &&
+        u.rol?.toLowerCase().trim() === "usuario"
+    );
+
+    setUsuarios(lista);
+    setAceptados(aceptados);
+    setPendientes(pendientes);
+    setRechazados(rechazados);
+  } catch (error) {
+    console.error("Error al obtener usuarios:", error);
+    setAlerta("Hubo un problema al cargar los usuarios.");
+  }
+};
 
   const cambiarEstado = async (id: string, nuevoEstado: string) => {
     try {

@@ -12,41 +12,53 @@ import { Badge } from '@/components/ui/badge';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { db } from '../lib/firebase';
 import { collection, query, where, orderBy, getDocs, doc, setDoc } from 'firebase/firestore';
-
+import { ADMIN_EMAIL } from "@/pages/admin/config/adminConfig"; // Asegúrate de que la ruta sea correcta
 
 const Index = () => {
   // Estado para saludo
+  
   // Redirección robusta para empresas
   useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-      // Buscar en users si el usuario es empresa
-      const userRef = collection(db, "users");
-      const userQuery = query(userRef, where("uid", "==", user.uid));
-      const userSnap = await getDocs(userQuery);
-      let isCompany = false;
-      if (!userSnap.empty) {
-        const userData = userSnap.docs[0].data();
-        if (userData.role === "empresa" || userData.tipo === "empresa" || userData.isCompany) {
-          isCompany = true;
-        }
+  const auth = getAuth();
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    // 🔹 Redirección para admin
+    if (
+      user.email &&
+      ADMIN_EMAIL &&
+      user.email.trim().toLowerCase() === ADMIN_EMAIL.trim().toLowerCase()
+    ) {
+      window.location.replace("/admin");
+      return;
+    }
+
+    // Buscar en users si el usuario es empresa
+    const userRef = collection(db, "users");
+    const userQuery = query(userRef, where("uid", "==", user.uid));
+    const userSnap = await getDocs(userQuery);
+    let isCompany = false;
+    if (!userSnap.empty) {
+      const userData = userSnap.docs[0].data();
+      if (userData.role === "empresa" || userData.tipo === "empresa" || userData.isCompany) {
+        isCompany = true;
       }
-      // Buscar en empresas por si acaso
-      if (!isCompany) {
-        const empresaRef = collection(db, "empresas");
-        const empresaQuery = query(empresaRef, where("userId", "==", user.uid));
-        const empresaSnap = await getDocs(empresaQuery);
-        if (!empresaSnap.empty) {
-          isCompany = true;
-        }
+    }
+    // Buscar en empresas por si acaso
+    if (!isCompany) {
+      const empresaRef = collection(db, "empresas");
+      const empresaQuery = query(empresaRef, where("userId", "==", user.uid));
+      const empresaSnap = await getDocs(empresaQuery);
+      if (!empresaSnap.empty) {
+        isCompany = true;
       }
-      if (isCompany) {
-        window.location.replace("/backoffice");
-      }
-    });
-    return () => unsubscribe && unsubscribe();
-  }, []);
+    }
+    if (isCompany) {
+      window.location.replace("/backoffice");
+    }
+  });
+  return () => unsubscribe && unsubscribe();
+}, []);
   const [greeting, setGreeting] = useState(() => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Buenos días';

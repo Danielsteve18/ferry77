@@ -12,6 +12,10 @@ import {
   Truck,
   Inbox,
 } from "lucide-react";
+import { Power } from "lucide-react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase"; // Ajusta la ruta si es necesario
+import { useNavigate } from "react-router-dom";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -44,13 +48,23 @@ const NavItem = ({
 };
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    localStorage.clear();
+    navigate("/login", { replace: true });
+  };
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md flex flex-col">
         {/* Logo y usuario */}
         <div className="p-4 border-b">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer"
+            onClick={() => navigate("/admin")}
+            title="Ir al Dashboard"
+            >
             <div className="w-11 h-11 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow">
               F
             </div>
@@ -106,8 +120,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div>
             <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">Empresas</h2>
             <ul className="space-y-1">
-              <NavItem to="/admin/empresas/activas" icon={Building2} label="Activas" />
-              <NavItem to="/admin/empresas/verificar" icon={Clock} label="Por verificar" />
+              <NavItem to="/admin/empresas/activos" icon={Building2} label="Activas" />
+              <NavItem to="/admin/empresas/solicitudes" icon={Clock} label="Por verificar" />
               <NavItem to="/admin/empresas/rechazadas" icon={UserX} label="Rechazadas" />
             </ul>
           </div>
@@ -123,7 +137,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <NavItem to="/admin/repartidores/rechazados" icon={UserX} label="Rechazados" />
             </ul>
           </div>
+          {/* Botón de cerrar sesión */}
+        <div className="p-4 mt-auto">
+          <button
+            onClick={handleLogout}
+            className="w-10 h-10 flex items-center justify-center bg-red-600 text-white rounded-full hover:bg-red-700 transition mx-auto shadow"
+            title="Cerrar sesión"
+          >
+            <Power className="w-5 h-5" />
+          </button>
+        </div>
         </nav>
+
+        
+
       </aside>
 
       {/* Contenido principal */}

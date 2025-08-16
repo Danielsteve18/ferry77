@@ -65,9 +65,16 @@ const Auth = () => {
     localStorage.setItem("userAuthenticated", "true");
     localStorage.setItem("userId", user.uid);
 
+    
+
     // 🔹 Verificar si es administrador
-    if (user.email === ADMIN_EMAIL) {
+    if (
+      user.email &&
+      ADMIN_EMAIL &&
+      user.email.trim().toLowerCase() === ADMIN_EMAIL.trim().toLowerCase()
+    ) {
       window.location.href = "/admin";
+      console.log("user.email:", user.email, "ADMIN_EMAIL:", ADMIN_EMAIL);
       return; // Evitar que siga evaluando más abajo
     }
 
@@ -406,6 +413,11 @@ const Auth = () => {
                       value={formData.location}
                       onChange={(e) => setFormData({...formData, location: e.target.value})}
                     />
+                    <UbicacionButton
+                    onDireccionObtenida={(direccion) =>
+                      setFormData({ ...formData, location: direccion })
+                    }
+                  />
                   </div>
                 </div>
                 <div>

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { ADMIN_EMAIL } from "@/pages/admin/config/adminConfig"; // Ajusta la ruta según tu estructura
 
 const Home = () => {
   const [activeRequestsCount, setActiveRequestsCount] = useState(0);
@@ -85,105 +86,130 @@ const Home = () => {
     });
 
     // Función para verificar el tipo de usuario
-    const verificarTipoUsuario = async (uid, esVerificacionEnSegundoPlano = false) => {
-      try {
-        console.log(`[DEBUG][CRITICAL] Verificando tipo de usuario para UID: ${uid}`);
-        
-        // SOLUCIÓN DIRECTA: Primero intentamos ver si es una empresa buscando en todas las colecciones
-        let isEmpresaConfirmed = false;
-        
-        // 1. Buscar en la colección empresas (búsqueda crítica)
-        const empresasSnap = await getDocs(query(collection(db, "empresas"), where("uid", "==", uid)));
-        if (!empresasSnap.empty) {
-          console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por empresas.uid");
+    const verificarTipoUsuario = async (uid, esVerificacionEnSegundoPlano = false, userAuth = null) => {
+  try {
+    console.log(`[DEBUG][CRITICAL] Verificando tipo de usuario para UID: ${uid}`);
+
+    let isEmpresaConfirmed = false;
+    let userEmail = null;
+
+    // 1. Buscar en la colección empresas
+    const empresasSnap = await getDocs(query(collection(db, "empresas"), where("uid", "==", uid)));
+    if (!empresasSnap.empty) {
+      console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por empresas.uid");
+      isEmpresaConfirmed = true;
+      userEmail = empresasSnap.docs[0].data().email || null;
+    } else {
+      // 2. Buscar por userId en empresas
+      const empresasUserIdSnap = await getDocs(query(collection(db, "empresas"), where("userId", "==", uid)));
+      if (!empresasUserIdSnap.empty) {
+        console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por empresas.userId");
+        isEmpresaConfirmed = true;
+        userEmail = empresasUserIdSnap.docs[0].data().email || null;
+      } else {
+        // 3. Buscar en la colección empresa singular
+        const empresaSnap = await getDocs(query(collection(db, "empresa"), where("uid", "==", uid)));
+        if (!empresaSnap.empty) {
+          console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por empresa.uid");
           isEmpresaConfirmed = true;
+          userEmail = empresaSnap.docs[0].data().email || null;
         } else {
-          // 2. Buscar por userId en empresas
-          const empresasUserIdSnap = await getDocs(query(collection(db, "empresas"), where("userId", "==", uid)));
-          if (!empresasUserIdSnap.empty) {
-            console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por empresas.userId");
+          // 4. Buscar por userId en empresa singular
+          const empresaUserIdSnap = await getDocs(query(collection(db, "empresa"), where("userId", "==", uid)));
+          if (!empresaUserIdSnap.empty) {
+            console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por empresa.userId");
             isEmpresaConfirmed = true;
-          } else {
-            // 3. Buscar en la colección empresa singular
-            const empresaSnap = await getDocs(query(collection(db, "empresa"), where("uid", "==", uid)));
-            if (!empresaSnap.empty) {
-              console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por empresa.uid");
-              isEmpresaConfirmed = true;
-            } else {
-              // 4. Buscar por userId en empresa singular
-              const empresaUserIdSnap = await getDocs(query(collection(db, "empresa"), where("userId", "==", uid)));
-              if (!empresaUserIdSnap.empty) {
-                console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por empresa.userId");
-                isEmpresaConfirmed = true;
-              }
-            }
+            userEmail = empresaUserIdSnap.docs[0].data().email || null;
           }
         }
-        
-        // Si todavía no está confirmado, vamos a la colección de usuarios como último recurso
-        if (!isEmpresaConfirmed) {
-          const userSnap = await getDocs(query(collection(db, "users"), where("uid", "==", uid)));
-          if (!userSnap.empty) {
-            const userData = userSnap.docs[0].data();
-            console.log("[DEBUG][CRITICAL] Datos de usuario:", JSON.stringify(userData, null, 2));
-            
-            if (
-              userData.rol === "empresa" ||
-              userData.role === "empresa" ||
-              userData.type === "company" ||
-              userData.tipo === "empresa" ||
-              userData.isCompany === true ||
-              !!userData.companyName ||
-              !!userData.nick
-            ) {
-              console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por atributos en users");
-              isEmpresaConfirmed = true;
-            }
-          }
-        }
-        
-        // DECISIÓN FINAL
-        console.log("[DEBUG][CRITICAL] ⭐ RESULTADO FINAL: " + (isEmpresaConfirmed ? "ES EMPRESA" : "NO ES EMPRESA"));
-        
-        // Guardamos el tipo en localStorage de forma FORZADA si es empresa
-        const tipo = isEmpresaConfirmed ? 'empresa' : 'usuario';
-        localStorage.setItem('userType', tipo);
-        localStorage.setItem('uid', uid);
-        setUserType(tipo);
-        
-        // Redirigimos SIEMPRE si es empresa para evitar problemas
-        if (isEmpresaConfirmed) {
-          if (!esVerificacionEnSegundoPlano) {
-            console.log("[NAVIGATE][FORCED] REDIRIGIENDO A BACKOFFICE como empresa");
-            navigate("/backoffice", { replace: true });
-          } else {
-            console.log("[BACKGROUND][FORCED] Se detectó empresa en verificación de fondo");
-          }
-        } else if (!esVerificacionEnSegundoPlano) {
-          console.log("[NAVIGATE] Redirigiendo como usuario normal");
-          navigate("/dashboard", { replace: true });
-        }
-      } catch (error) {
-        console.error("[ERROR][CRITICAL] Error al verificar tipo de usuario:", error);
-        if (!esVerificacionEnSegundoPlano) {
-          // En caso de error, intentar usar la caché si existe
-          const cachedType = localStorage.getItem('userType');
-          if (cachedType === 'empresa') {
-            console.log("[ERROR][RECOVERY] Usando caché para redirigir a backoffice");
-            navigate("/backoffice", { replace: true });
-          } else {
-            console.log("[ERROR][FALLBACK] Redirigiendo a dashboard por defecto");
-            setUserType('usuario');
-            navigate("/dashboard", { replace: true });
-          }
-        }
-      } finally {
-        if (!esVerificacionEnSegundoPlano) {
-          setCheckingUser(false);
-        }
-        clearTimeout(slowTimeout);
       }
-    };
+    }
+
+    // Si todavía no está confirmado, vamos a la colección de usuarios como último recurso
+    if (!isEmpresaConfirmed) {
+      const userSnap = await getDocs(query(collection(db, "users"), where("uid", "==", uid)));
+      if (!userSnap.empty) {
+        const userData = userSnap.docs[0].data();
+        userEmail = userData.email;
+
+        if (
+          userData.rol === "empresa" ||
+          userData.role === "empresa" ||
+          userData.type === "company" ||
+          userData.tipo === "empresa" ||
+          userData.isCompany === true ||
+          !!userData.companyName ||
+          !!userData.nick
+        ) {
+          console.log("[DEBUG][CRITICAL] ✓ CONFIRMADO: Es empresa por atributos en users");
+          isEmpresaConfirmed = true;
+        }
+      }
+    }
+
+    // Si no se encontró email en Firestore, usar el de autenticación
+    if (!userEmail && userAuth && userAuth.email) {
+      userEmail = userAuth.email;
+    }
+
+    // Verifica si es admin
+    if (
+      userEmail &&
+      ADMIN_EMAIL &&
+      userEmail.trim().toLowerCase() === ADMIN_EMAIL.trim().toLowerCase()
+    ) {
+      localStorage.setItem('userType', 'admin');
+      localStorage.setItem('uid', uid);
+      setUserType('admin');
+      if (!esVerificacionEnSegundoPlano) {
+        navigate("/admin", { replace: true });
+      }
+      return;
+    }
+
+    // DECISIÓN FINAL
+    console.log("[DEBUG][CRITICAL] ⭐ RESULTADO FINAL: " + (isEmpresaConfirmed ? "ES EMPRESA" : "NO ES EMPRESA"));
+
+    // Guardamos el tipo en localStorage de forma FORZADA si es empresa
+    const tipo = isEmpresaConfirmed ? 'empresa' : 'usuario';
+    localStorage.setItem('userType', tipo);
+    localStorage.setItem('uid', uid);
+    setUserType(tipo);
+
+    // Redirigimos SIEMPRE si es empresa para evitar problemas
+    if (isEmpresaConfirmed) {
+      if (!esVerificacionEnSegundoPlano) {
+        console.log("[NAVIGATE][FORCED] REDIRIGIENDO A BACKOFFICE como empresa");
+        navigate("/backoffice", { replace: true });
+      } else {
+        console.log("[BACKGROUND][FORCED] Se detectó empresa en verificación de fondo");
+      }
+    } else if (!esVerificacionEnSegundoPlano) {
+      console.log("[NAVIGATE] Redirigiendo como usuario normal");
+      navigate("/dashboard", { replace: true });
+    }
+  } catch (error) {
+    console.error("[ERROR][CRITICAL] Error al verificar tipo de usuario:", error);
+    if (!esVerificacionEnSegundoPlano) {
+      // En caso de error, intentar usar la caché si existe
+      const cachedType = localStorage.getItem('userType');
+      if (cachedType === 'empresa') {
+        console.log("[ERROR][RECOVERY] Usando caché para redirigir a backoffice");
+        navigate("/backoffice", { replace: true });
+      } else {
+        console.log("[ERROR][FALLBACK] Redirigiendo a dashboard por defecto");
+        setUserType('usuario');
+        navigate("/dashboard", { replace: true });
+      }
+    }
+  } finally {
+    if (!esVerificacionEnSegundoPlano) {
+      setCheckingUser(false);
+    }
+    // Limpia el timeout si existe
+    if (typeof slowTimeout !== "undefined") clearTimeout(slowTimeout);
+  }
+};
     
     // Función para redirigir según el tipo de usuario
     const redirigirSegunTipo = (tipo) => {
@@ -191,7 +217,7 @@ const Home = () => {
       // Solo redirigimos si estamos en la ruta principal
       if (currentPath === "/" || currentPath === "/home") {
         console.log(`[NAVIGATE] Redirigiendo como ${tipo} a ${tipo === 'empresa' ? '/backoffice' : '/dashboard'}`);
-        navigate(tipo === 'empresa' ? "/backoffice" : "/dashboard", { replace: true });
+        navigate(tipo === 'empresa' ? "/backoffice" : "/admin", { replace: true });
       } else {
         console.log(`[NAVIGATE] No se redirije porque estamos en ${currentPath}`);
       }

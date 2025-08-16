@@ -96,29 +96,28 @@ function calcularDistanciaYTiempo(punto1, punto2) {
 // Función de debug para verificar que los cálculos funcionan correctamente
 // (solo se usa para desarrollo)
 function testearCalculosDistancia() {
-  console.log("=== TESTEANDO CÁLCULOS DE DISTANCIA Y TIEMPO ===");
+
   
   // Pruebas con coordenadas
   const coord1 = { lat: -34.603722, lon: -58.381592 }; // Buenos Aires
   const coord2 = { lat: -34.921349, lon: -57.955547 }; // La Plata
   
-  console.log("Distancia Buenos Aires - La Plata:");
-  console.log(calcularDistanciaYTiempo(coord1, coord2));
+  
+  
   
   // Prueba con distancia corta
   const coord3 = { lat: -34.603722, lon: -58.371592 }; // A pocos km de Buenos Aires
-  console.log("Distancia corta (urbana):");
-  console.log(calcularDistanciaYTiempo(coord1, coord3));
+  
+ 
   
   // Prueba con distancia muy larga
   const coord4 = { lat: -31.417301, lon: -64.183238 }; // Córdoba
-  console.log("Distancia larga (Buenos Aires - Córdoba):");
-  console.log(calcularDistanciaYTiempo(coord1, coord4));
+  
   
   // Varias llamadas para ver si hay variabilidad
-  console.log("Variabilidad en múltiples llamadas (mismas coordenadas):");
+ 
   for (let i = 0; i < 5; i++) {
-    console.log(`#${i+1}:`, calcularDistanciaYTiempo(coord1, coord2));
+    
   }
 }
 

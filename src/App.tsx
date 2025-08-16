@@ -42,17 +42,20 @@ import DeliveryProfile from "./pages/DeliveryProfile";
 import DeliveryPriceProposal from "./pages/DeliveryPriceProposal";
 import UserDeliveryTracking from "./pages/UserDeliveryTracking";
 import CompanyDeliveryTracking from "./pages/CompanyDeliveryTracking";
-import VerificationAdmin from "./pages/admin/VerificationAdmin";
 
-  //admin
-  import { RequireAdmin } from "@/pages/admin/hooks/useAdminAuth";
-  import AdminDashboard from "@/pages/admin/Pages/Dashboard";
-    //vistas
+//admin
+import { RequireAdmin } from "@/pages/admin/hooks/useAdminAuth";
+import AdminDashboard from "@/pages/admin/Pages/Dashboard";
+  //vistas
   import TodosUsuarios from "@/pages/admin/Pages/usuarios/todos";
   import PendientesUsuarios from "./pages/admin/Pages/usuarios/pendientes";
   import ActivosUsuarios from "./pages/admin/Pages/usuarios/activos";
   import RechazadosUsuarios from "./pages/admin/Pages/usuarios/rechazados";
   import SolicitudesUsuarios from "./pages/admin/Pages/usuarios/solicitudes";
+  import ActivosEmpresa from "./pages/admin/Pages/empresas/activas";
+  import PendientesEmpresas from "./pages/admin/Pages/empresas/pendientes";
+  import VerificationAdmin from "./pages/admin/VerificationAdmin";
+  
 
 
 import { onAuthStateChanged } from "firebase/auth";
@@ -183,6 +186,37 @@ const App = () => {
                     </RequireAdmin>
                   }
                 />
+                 
+                <Route
+                  path="/admin/empresas/activos"
+                  element={
+                    <RequireAdmin>
+                      <ActivosEmpresa />
+                    </RequireAdmin>
+                  }
+                />
+
+                <Route
+                  path="/admin/empresas/solicitudes"
+                  element={
+                    <RequireAdmin>
+                      <PendientesEmpresas />
+                    </RequireAdmin>
+                  }
+                />
+
+
+
+                 <Route
+                  path="/admin/verification"
+                  element={
+                    <RequireAdmin>
+                      <VerificationAdmin  />
+                    </RequireAdmin>
+                  }
+                />
+                 
+                
 
 
                    {/* Ruta protegida para admin */}  
@@ -218,8 +252,7 @@ const App = () => {
                 <Route path="/order-status" element={<OrderStatus />} />
                 <Route path="/order-tracking" element={<OrderTracking />} />
 
-                {/* Rutas de administración */}
-                <Route path="/admin/verification" element={<VerificationAdmin />} />
+               
 
                 {/* Rutas para repartidores */}
                 <Route path="/delivery-dashboard" element={<DeliveryDashboard />} />

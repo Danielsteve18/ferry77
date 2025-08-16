@@ -8,23 +8,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Clock } from "lucide-react";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
-export default function PendientesUsuarios() {
-  const [alerta, setAlerta] = useState("");
-  
+export default function ActivosEmpresa()  {
   const [usuarios, setUsuarios] = useState([]);
   const [aceptados, setAceptados] = useState([]);
   const [pendientes, setPendientes] = useState([]);
-const [rechazados, setRechazados] = useState([]);
+  const [rechazados, setRechazados] = useState([]);
+    const [alerta, setAlerta] = useState("");
 
-   useEffect(() => {
-      fetchUsuarios();
-    }, []);
-  
-    const fetchUsuarios = async () => {
+
+  useEffect(() => {
+    fetchUsuarios();
+  }, []);
+
+  const fetchUsuarios = async () => {
   try {
     const snap = await getDocs(collection(db, "users"));
     const lista = snap.docs.map((doc) => {
@@ -37,22 +42,23 @@ const [rechazados, setRechazados] = useState([]);
       };
     });
 
+
     const aceptados = lista.filter(
       (u) =>
         u.status?.toLowerCase().trim() === "aceptado" &&
-        u.rol?.toLowerCase().trim() === "usuario"
+        u.rol?.toLowerCase().trim() === "empresa"
     );
 
     const pendientes = lista.filter(
       (u) =>
         u.status?.toLowerCase().trim() === "pendiente" &&
-        u.rol?.toLowerCase().trim() === "usuario"
+        u.rol?.toLowerCase().trim() === "empresa"
     );
 
     const rechazados = lista.filter(
       (u) =>
         u.status?.toLowerCase().trim() === "rechazado" &&
-        u.rol?.toLowerCase().trim() === "usuario"
+        u.rol?.toLowerCase().trim() === "empresa"
     );
 
     setUsuarios(lista);
@@ -60,27 +66,43 @@ const [rechazados, setRechazados] = useState([]);
     setPendientes(pendientes);
     setRechazados(rechazados);
   } catch (error) {
-    console.error("Error al obtener usuarios:", error);
     setAlerta("Hubo un problema al cargar los usuarios.");
   }
 };
 
 
-  const cambiarstatus = async (id: string, nuevo: string) => {
-    await updateDoc(doc(db, "users", id), { status: nuevo });
-    setUsuarios((prev) =>
-      prev.map((u) => (u.id === id ? { ...u, status: nuevo } : u))
-    );
-    setAlerta(`Usuario actualizado a "${nuevo}"`);
-    setTimeout(() => setAlerta(""), 3000);
-  };
+  const cambiarEstado = async (id: string, nuevoEstado: string) => {
+    try {
+      const ref = doc(db, "users", id);
+      await updateDoc(ref, { status: nuevoEstado });
 
+      // Actualiza localmente
+      setAceptados((prev) =>
+        prev.filter((u) => u.id !== id)
+      );
+      fetchUsuarios(); // Refresca todo
+    } catch (error) {
+      console.error("Error al cambiar estado:", error);
+    }
+  };
 
   return (
     <AdminLayout>
       <div className="min-h-screen space-y-6">
-        {/* Resumen */}
+        {/* Cards resumen */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <CardTitle>Activos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-green-600">
+                {aceptados.length}
+              </p>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-yellow-500" />
@@ -89,18 +111,6 @@ const [rechazados, setRechazados] = useState([]);
             <CardContent>
               <p className="text-2xl font-bold text-yellow-600">
                 {pendientes.length}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <CardTitle>Aceptados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-green-600">
-                {aceptados.length}
               </p>
             </CardContent>
           </Card>
@@ -118,52 +128,47 @@ const [rechazados, setRechazados] = useState([]);
           </Card>
         </div>
 
-        {/* Lista de pendientes */}
+        {/* Lista de usuarios activos */}
         <Card>
-          <CardHeader>
-            <CardTitle>Usuarios pendientes</CardTitle>
+          <CardHeader className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-500" />
+            <CardTitle>Usuarios aceptados</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="max-h-[400px] overflow-y-auto pr-2 space-y-4">
-              {pendientes.map((usuario) => (
+            <div className="max-h-[600px] overflow-y-auto pr-2 space-y-4">
+              {aceptados.map((usuario) => (
                 <Card key={usuario.id} className="w-full">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3">
-                    {/* Nombre y rol */}
                     <div className="mb-2 sm:mb-0">
                       <h3 className="text-base font-semibold text-gray-800">
                         {usuario.name}
                       </h3>
                       <p className="text-sm text-gray-500">{usuario.rol}</p>
+                      <p className="text-sm text-gray-500">
+                        {usuario.companyName || usuario.nick}
+                      </p>
                     </div>
 
-                    {/* Botones de acción */}
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => cambiarstatus(usuario.id, "aceptado")}
-                      >
-                        Aceptar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => cambiarstatus(usuario.id, "rechazado")}
-                      >
-                        Rechazar
-                      </Button>
-                    </div>
+                    {/* Select para cambiar estado */}
+                    <Select
+                      onValueChange={(value) =>
+                        cambiarEstado(usuario.id, value)
+                      }
+                      defaultValue="aceptado"
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="aceptado">Aceptado</SelectItem>
+                        <SelectItem value="pendiente">Pendiente</SelectItem>
+                        <SelectItem value="rechazado">Rechazado</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </Card>
               ))}
             </div>
-
-            {alerta && (
-              <Alert className="mt-6">
-                <AlertTitle>Actualización</AlertTitle>
-                <AlertDescription>{alerta}</AlertDescription>
-              </Alert>
-            )}
           </CardContent>
         </Card>
       </div>
