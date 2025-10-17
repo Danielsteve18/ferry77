@@ -1,0 +1,418 @@
+/* Ferry77 Driver.js Tour Styles - Versión Clara y Atractiva */
+
+/* IMPORTANTE: Estilos base que funcionan con Driver.js 1.3.6 */
+
+/* Variables CSS globales */
+:root {
+  --ferry-primary: #3b82f6;
+  --ferry-primary-dark: #2563eb;
+  --ferry-primary-light: #60a5fa;
+  --ferry-secondary: #10b981;
+  --ferry-accent: #f59e0b;
+  --ferry-success: #22c55e;
+  --ferry-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* Base styles para los popovers */
+.ferry-tour-popover {
+  --driver-popover-color: #1f2937;
+  --driver-popover-bg: #ffffff;
+  --driver-popover-border: #d1d5db;
+  --driver-text-color: #374151;
+  --driver-popover-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+  --driver-popover-rounded: 16px;
+  --driver-popover-arrow-size: 10px;
+}
+
+/* Popover principal - Diseño claro y moderno */
+.driver-popover {
+  border-radius: var(--driver-popover-rounded) !important;
+  box-shadow: var(--driver-popover-shadow) !important;
+  border: 2px solid var(--ferry-primary-light) !important;
+  max-width: 350px !important;
+  background: var(--driver-popover-bg) !important;
+  backdrop-filter: blur(10px) !important;
+  position: fixed !important;
+  z-index: 1000000 !important;
+  overflow: hidden !important;
+  pointer-events: auto !important;
+}
+
+/* Gradiente sutil en el borde superior */
+.driver-popover::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: var(--ferry-gradient) !important;
+  z-index: 1 !important;
+}
+
+/* Header del popover - Más atractivo */
+.driver-popover .driver-popover-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: var(--ferry-primary) !important;
+  margin-bottom: 12px !important;
+  margin-top: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  position: relative !important;
+  z-index: 2 !important;
+  text-shadow: 0 1px 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Descripción - Más legible */
+.driver-popover .driver-popover-description {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: #4b5563 !important;
+  margin-bottom: 20px !important;
+  font-weight: 400 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Footer con botones - Más espacioso */
+.driver-popover .driver-popover-footer {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-top: 20px !important;
+  padding-top: 20px !important;
+  border-top: 1px solid #e5e7eb !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Progress text - Más visible */
+.driver-popover .driver-popover-progress-text {
+  font-size: 13px !important;
+  color: var(--ferry-primary) !important;
+  font-weight: 600 !important;
+  background: #eff6ff !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  border: 1px solid #dbeafe !important;
+}
+
+/* Botones - Más atractivos y refinados SIN distorsión */
+.driver-popover .driver-popover-prev-btn,
+.driver-popover .driver-popover-next-btn,
+.driver-popover .driver-popover-close-btn {
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  display: inline-block !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  min-width: auto !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+}
+
+/* Botón anterior - Estilo claro */
+.driver-popover .driver-popover-prev-btn {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border: 2px solid #e2e8f0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.driver-popover .driver-popover-prev-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Botón siguiente y cerrar - Gradiente atractivo refinado */
+.driver-popover .driver-popover-next-btn,
+.driver-popover .driver-popover-close-btn {
+  background: var(--ferry-gradient) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 
+    0 4px 12px rgba(59, 130, 246, 0.25),
+    0 1px 3px rgba(59, 130, 246, 0.12) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Remover iconos que causan distorsión - los botones ya tienen texto descriptivo */
+
+.driver-popover .driver-popover-next-btn:hover,
+.driver-popover .driver-popover-close-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 
+    0 8px 25px rgba(59, 130, 246, 0.3),
+    0 2px 8px rgba(59, 130, 246, 0.15) !important;
+}
+
+.driver-popover .driver-popover-next-btn:active,
+.driver-popover .driver-popover-close-btn:active {
+  transform: translateY(0) !important;
+  box-shadow: 
+    0 2px 8px rgba(59, 130, 246, 0.2),
+    0 1px 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* ESTILOS CRÍTICOS PARA DRIVER.JS - NO MODIFICAR SIN PROBAR */
+
+/* Overlay - Fondo oscuro durante el tour */
+.driver-overlay {
+  background: rgba(0, 0, 0, 0.5) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999998 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+/* Área de stage (elemento destacado) */
+.driver-stage {
+  background: transparent !important;
+  outline: none !important;
+  position: relative !important;
+  z-index: 999999 !important;
+}
+
+/* Elemento destacado - Más brillante y atractivo */
+.driver-highlighted-element,
+.driver-active-element {
+  border-radius: 8px !important;
+  box-shadow: 
+    0 0 0 3px #ffffff,
+    0 0 0 6px var(--ferry-primary),
+    0 0 20px rgba(59, 130, 246, 0.5) !important;
+  position: relative !important;
+  z-index: 1000000 !important;
+  pointer-events: auto !important;
+}
+
+/* Simplificar animaciones para mejor compatibilidad */
+@keyframes ferry-highlight-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 3px #ffffff,
+      0 0 0 6px var(--ferry-primary),
+      0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 3px #ffffff,
+      0 0 0 8px var(--ferry-primary),
+      0 0 30px rgba(59, 130, 246, 0.7);
+  }
+}
+
+/* Estilos específicos por tour */
+
+/* Dashboard Tour */
+.ferry-tour-dashboard .driver-popover-title {
+  color: var(--ferry-primary) !important;
+}
+
+.ferry-tour-dashboard .driver-highlighted-element {
+  box-shadow: 0 0 0 4px var(--ferry-primary), 0 0 20px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* Quick Request Tour - Verde para IA */
+.ferry-tour-quick-request .driver-popover-title {
+  color: var(--ferry-secondary) !important;
+  background: linear-gradient(90deg, var(--ferry-secondary), #059669) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.ferry-tour-quick-request .driver-popover-next-btn,
+.ferry-tour-quick-request .driver-popover-close-btn {
+  background: linear-gradient(135deg, var(--ferry-secondary) 0%, #059669 100%) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
+}
+
+.ferry-tour-quick-request .driver-popover-next-btn:hover,
+.ferry-tour-quick-request .driver-popover-close-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
+}
+
+.ferry-tour-quick-request .driver-highlighted-element,
+.ferry-tour-quick-request .driver-active-element {
+  box-shadow: 
+    0 0 0 3px #ffffff,
+    0 0 0 6px var(--ferry-secondary),
+    0 0 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* Company Tour */
+.ferry-tour-company .driver-popover-title {
+  color: var(--ferry-accent) !important;
+}
+
+.ferry-tour-company .driver-popover-next-btn,
+.ferry-tour-company .driver-popover-close-btn {
+  background: var(--ferry-accent) !important;
+}
+
+.ferry-tour-company .driver-popover-next-btn:hover,
+.ferry-tour-company .driver-popover-close-btn:hover {
+  background: #d97706 !important;
+}
+
+.ferry-tour-company .driver-highlighted-element {
+  box-shadow: 0 0 0 4px var(--ferry-accent), 0 0 20px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Notifications Tour - Púrpura para notificaciones */
+.ferry-tour-notifications .driver-popover-title {
+  color: #8b5cf6 !important;
+  background: linear-gradient(90deg, #8b5cf6, #7c3aed) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.ferry-tour-notifications .driver-popover-next-btn,
+.ferry-tour-notifications .driver-popover-close-btn {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25) !important;
+}
+
+.ferry-tour-notifications .driver-popover-next-btn:hover,
+.ferry-tour-notifications .driver-popover-close-btn:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3) !important;
+}
+
+.ferry-tour-notifications .driver-highlighted-element,
+.ferry-tour-notifications .driver-active-element {
+  box-shadow: 
+    0 0 0 3px #ffffff,
+    0 0 0 6px #8b5cf6,
+    0 0 20px rgba(139, 92, 246, 0.4) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .driver-popover {
+    max-width: 300px !important;
+    margin: 16px !important;
+  }
+  
+  .driver-popover .driver-popover-title {
+    font-size: 18px !important;
+  }
+  
+  .driver-popover .driver-popover-description {
+    font-size: 14px !important;
+  }
+  
+  .driver-popover .driver-popover-prev-btn,
+  .driver-popover .driver-popover-next-btn,
+  .driver-popover .driver-popover-close-btn {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+  }
+  
+  .driver-highlighted-element {
+    box-shadow: 
+      0 0 0 2px #ffffff,
+      0 0 0 4px var(--ferry-primary-light),
+      0 0 20px rgba(59, 130, 246, 0.4) !important;
+  }
+}
+
+/* Animaciones personalizadas */
+.driver-popover {
+  animation: ferry-popover-entrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+@keyframes ferry-popover-entrance {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Efectos adicionales para mayor atractivo */
+.driver-popover {
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%),
+    var(--driver-popover-bg) !important;
+}
+
+/* Close button personalizado */
+.driver-popover .driver-popover-close-btn {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: #f3f4f6 !important;
+  color: #6b7280 !important;
+  font-size: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.driver-popover .driver-popover-close-btn:hover {
+  background: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* Arrow customization - Más atractivas */
+.driver-popover.driver-popover-top .driver-popover-arrow,
+.driver-popover.driver-popover-bottom .driver-popover-arrow,
+.driver-popover.driver-popover-left .driver-popover-arrow,
+.driver-popover.driver-popover-right .driver-popover-arrow {
+  border-color: var(--driver-popover-bg) !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+}
+
+/* Efecto hover para todos los botones */
+.driver-popover .driver-popover-prev-btn,
+.driver-popover .driver-popover-next-btn,
+.driver-popover .driver-popover-close-btn {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Efecto de ondas en hover */
+.driver-popover .driver-popover-next-btn:hover,
+.driver-popover .driver-popover-close-btn:hover {
+  background-size: 200% 200% !important;
+  background-position: 100% 0 !important;
+}
+
+/* Mejor spacing para el contenido */
+.driver-popover .driver-popover-title,
+.driver-popover .driver-popover-description,
+.driver-popover .driver-popover-footer {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+.driver-popover .driver-popover-title {
+  padding-top: 20px !important;
+}
